@@ -275,7 +275,7 @@ export default function ChatPage() {
                   <div
                     className={`max-w-[70%] px-4 py-3 rounded-2xl ${
                       message.role === "user"
-                        ? "bg-gradient-to-r from-orange-100 to-orange-600 text-white rounded-br-md"
+                        ? "bg-orange-500 dark:bg-orange-800 text-white rounded-br-md"
                         : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-md"
                     }`}>
                     <p className="text-sm leading-relaxed">{message.content}</p>
@@ -283,7 +283,7 @@ export default function ChatPage() {
                   {message.role === "user" && (
                     <div
                       className="w-8 h-8 rounded-full  flex items-center justify-center flex-shrink-0">
-                     <Image src="/logo.png" alt="Hamhey User" width={32} height={32} className="w-8 h-8 object-contain" />
+                     
                     </div>
                   )}
                 </div>
