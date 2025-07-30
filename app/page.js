@@ -1,396 +1,361 @@
-"use client";
-import React, { useState, useEffect, useRef } from 'react';
-import ChatInput from '../components/chat/ChatInput';
-import ChatMessages from '../components/chat/ChatMessages';
-import ChatSidebar from '../components/chat/ChatSidebar';
-import DarkModeToggle from '../components/DarkModeToggle';
-// Mock data
-const initialChats = [
-  {
-    id: 1,
-    title: "Project Ideas",
-    messages: [
-      { id: 1, role: "ai", content: "Let's brainstorm some innovative ideas!" },
-    ],
-  },
-  {
-    id: 2,
-    title: "Travel Plans",
-    messages: [
-      { id: 1, role: "ai", content: "Where should we explore next?" },
-    ],
-  },
-  {
-    id: 3,
-    title: "Shopping List",
-    messages: [
-      { id: 1, role: "ai", content: "Don't forget the oranges!" },
-    ],
-  },
-  {
-    id: 4,
-    title: "Code Review",
-    messages: [
-      { id: 1, role: "ai", content: "Here's a javascript code block: ```javascript\nconsole.log(\"Hello, World!\");\n```" },
-    ],
-  },
-  {
-    id: 5,
-    title: "Design Feedback",
-    messages: [
-      { id: 1, role: "ai", content: "The layout looks fantastic!" },
-    ],
-  },
-];
+"use client"
+import { useEffect, useRef, useState } from "react"
+import Image from "next/image"
+import {
+  PenSquare,
+  Search,
+  MessageSquare,
+  Users,
+  Settings,
+  Plus,
+  Mic,
+  Paperclip,
+  ArrowUp,
+  Menu,
+  Sun,
+  Moon,
+  Sparkles,
+} from "lucide-react"
+
+const sidebarItems = [
+  { icon: PenSquare, label: "New Chat", id: "new-chat" },
+  { icon: Search, label: "Search", id: "search" },
+  { icon: MessageSquare, label: "Chats", id: "chats" },
+  { icon: Users, label: "Team", id: "team" },
+  { icon: Settings, label: "Settings", id: "settings" },
+]
+
+const mockChats = [
+  { id: 1, title: "Project Planning", preview: "Let's discuss the roadmap...", time: "2h ago" },
+  { id: 2, title: "Code Review", preview: "Here are some suggestions...", time: "1d ago" },
+  { id: 3, title: "Design Ideas", preview: "What about this layout?", time: "3d ago" },
+  { id: 4, title: "Marketing Strategy", preview: "The campaign looks great...", time: "1w ago" },
+]
 
 const mockAIResponses = [
-  "Interesting question! Let me think about that...",
-  "Sure, I can help with that!",
-  "Can you clarify a bit more?",
-  "Here's something you might find useful.",
-  "That's a great idea!",
-  "Let me look that up for you.",
-  "I'd be happy to assist you with that.",
-];
+  "I'd be happy to help you with that! Let me break this down step by step.",
+  "That's a great question. Here's what I think would work best for your situation.",
+  "I can definitely assist you with this. Let me provide some detailed insights.",
+  "Excellent! I can see you're thinking strategically about this. Here's my take.",
+  "Let me help you explore this topic thoroughly with some comprehensive information.",
+]
 
-// Dark Mode Toggle Component
-// function DarkModeToggle({ isDark, onToggle }) {
-//   return (
-//     <button
-//       onClick={onToggle}
-//       className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-700 hover:bg-gray-600 text-gray-300 transition-colors duration-200"
-//       aria-label="Toggle dark mode"
-//     >
-//       {isDark ? (
-//         <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-//           <path strokeLinecap="round" strokeLinejoin="round" d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z" />
-//         </svg>
-//       ) : (
-//         <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-//           <circle cx="12" cy="12" r="5" />
-//           <path strokeLinecap="round" strokeLinejoin="round" d="M12 1v2m0 18v2m11-11h-2M3 12H1m16.95 7.07l-1.41-1.41M6.34 6.34L4.93 4.93m12.02 0l-1.41 1.41M6.34 17.66l-1.41 1.41" />
-//         </svg>
-//       )}
-//     </button>
-//   );
-// }
-
-// function ChatSidebar({ selectedChatId, onSelectChat, onNewChat, onClose, isDark }) {
-//   const bgClass = isDark ? 'bg-gray-800 border-gray-700' : 'bg-orange-50 border-orange-200';
-//   const textClass = isDark ? 'text-orange-400' : 'text-orange-500';
-//   const buttonClass = isDark ? 'bg-orange-500 hover:bg-orange-600' : 'bg-orange-400 hover:bg-orange-500';
-//   const itemClass = isDark ? 'border-gray-700' : 'border-orange-100';
-//   const selectedClass = isDark ? 'bg-gray-700 text-orange-400' : 'bg-white text-orange-500';
-//   const hoverClass = isDark ? 'hover:bg-gray-700 text-gray-300' : 'hover:bg-orange-50 text-black';
-//   const closeButtonClass = isDark ? 'bg-gray-700 border-gray-600 text-orange-400 hover:bg-gray-600' : 'bg-white border-orange-300 text-orange-500 hover:bg-orange-100';
-
-//   return (
-//     <aside className={`w-64 ${bgClass} border-r flex flex-col h-full`}>
-//       <div className="flex items-center justify-between p-4 relative">
-//         <button
-//           className={`absolute left-0 top-1/2 -translate-y-1/2 ${closeButtonClass} border rounded-full px-2 py-1 font-bold shadow focus:outline-none transition-colors`}
-//           onClick={onClose}
-//           aria-label="Close sidebar"
-//         >
-//           ⟨
-//         </button>
-//         <span className={`font-bold ${textClass} text-lg mx-auto`}>Chats</span>
-//         <button
-//           className={`${buttonClass} text-white rounded-full px-3 py-1 text-sm font-medium absolute right-0 top-1/2 -translate-y-1/2 transition-colors`}
-//           onClick={onNewChat}
-//         >
-//           New
-//         </button>
-//       </div>
-//       <nav className="flex-1 overflow-y-auto">
-//         {initialChats.map((chat) => (
-//           <button
-//             key={chat.id}
-//             className={`w-full text-left px-4 py-3 border-b ${itemClass} transition-colors duration-150 focus:outline-none ${
-//               selectedChatId === chat.id ? `${selectedClass} font-semibold` : hoverClass
-//             }`}
-//             onClick={() => onSelectChat(chat.id)}
-//           >
-//             <div className="truncate font-medium">{chat.title}</div>
-//             <div className={`text-xs ${isDark ? 'text-gray-500' : 'text-orange-400'} truncate`}>
-//               {chat.messages[0]?.content}
-//             </div>
-//           </button>
-//         ))}
-//       </nav>
-//     </aside>
-//   );
-// }
-
-
-// Main Chat Component
-export default function HamheyAIChat() {
-  const [chats, setChats] = useState(initialChats);
-  const [selectedChatId, setSelectedChatId] = useState(initialChats[0].id);
-  const [input, setInput] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
-  const [editingMsg, setEditingMsg] = useState(null);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [isDark, setIsDark] = useState(true); // Default to dark mode
-  const [isDesktop, setIsDesktop] = useState(true);
-  const messagesEndRef = useRef(null);
+export default function ChatPage() {
+  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [selectedChat, setSelectedChat] = useState(null)
+  const [messages, setMessages] = useState([
+    {
+      id: "welcome",
+      role: "assistant",
+      content: "Hello! I'm your AI assistant. How can I help you today?",
+    },
+  ])
+  const [input, setInput] = useState("")
+  const [isTyping, setIsTyping] = useState(false)
+  const [isDark, setIsDark] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const [activeItem, setActiveItem] = useState("chats")
+  const messagesEndRef = useRef(null)
 
   useEffect(() => {
-    const checkDesktop = () => {
-      const desktop = window.innerWidth >= 768;
-      setIsDesktop(desktop);
-      if (desktop) {
-        setSidebarOpen(true);
-      } else {
-        setSidebarOpen(false);
-      }
-    };
-    checkDesktop();
-    window.addEventListener("resize", checkDesktop);
-    return () => window.removeEventListener("resize", checkDesktop);
-  }, []);
+    setMounted(true)
+    const savedTheme = localStorage.getItem("hamhey-theme")
+    const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
+    const shouldBeDark = savedTheme === "dark" || (!savedTheme && systemPrefersDark)
 
-  const selectedChat = chats.find((c) => c.id === selectedChatId);
-  const messages = selectedChat ? selectedChat.messages : [];
+    setIsDark(shouldBeDark)
+    if (shouldBeDark) {
+      document.documentElement.classList.add("dark")
+    } else {
+      document.documentElement.classList.remove("dark")
+    }
+  }, [])
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isTyping, selectedChatId]);
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages, isTyping])
+
+  const toggleTheme = () => {
+    const newTheme = !isDark
+    setIsDark(newTheme)
+    if (newTheme) {
+      document.documentElement.classList.add("dark")
+      localStorage.setItem("hamhey-theme", "dark")
+    } else {
+      document.documentElement.classList.remove("dark")
+      localStorage.setItem("hamhey-theme", "light")
+    }
+  }
 
   const handleSend = () => {
-    if (!input.trim()) return;
-    
-    if (editingMsg) {
-      setChats((prev) =>
-        prev.map((chat) =>
-          chat.id === selectedChatId
-            ? {
-                ...chat,
-                messages: chat.messages.map((msg) =>
-                  msg.id === editingMsg.id ? { ...msg, content: input } : msg
-                ),
-              }
-            : chat
-        )
-      );
-      setEditingMsg(null);
-      setInput("");
-      return;
-    }
+    if (!input.trim()) return
 
-    const userMsg = {
+    const userMessage = {
       id: Date.now(),
       role: "user",
       content: input,
-    };
+      timestamp: new Date(),
+    }
 
-    setChats((prev) =>
-      prev.map((chat) =>
-        chat.id === selectedChatId
-          ? { ...chat, messages: [...chat.messages, userMsg] }
-          : chat
-      )
-    );
-    
-    setInput("");
-    setIsTyping(true);
+    setMessages((prev) => [...prev, userMessage])
+    setInput("")
+    setIsTyping(true)
 
     setTimeout(() => {
-      const aiMsg = {
+      const aiMessage = {
         id: Date.now() + 1,
-        role: "ai",
+        role: "assistant",
         content: mockAIResponses[Math.floor(Math.random() * mockAIResponses.length)],
-      };
-      setChats((prev) =>
-        prev.map((chat) =>
-          chat.id === selectedChatId
-            ? { ...chat, messages: [...chat.messages, aiMsg] }
-            : chat
-        )
-      );
-      setIsTyping(false);
-    }, 1500);
-  };
-
-  const handleFile = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    const userMsg = {
-      id: Date.now(),
-      role: "user",
-      content: `Sent a file: ${file.name}`,
-      file: { name: file.name },
-    };
-    
-    setChats((prev) =>
-      prev.map((chat) =>
-        chat.id === selectedChatId
-          ? { ...chat, messages: [...chat.messages, userMsg] }
-          : chat
-      )
-    );
-    
-    setInput("");
-    setIsTyping(true);
-    
-    setTimeout(() => {
-      const aiMsg = {
-        id: Date.now() + 1,
-        role: "ai",
-        content: `Received your file (${file.name})! How can I help you with it?`,
-      };
-      setChats((prev) =>
-        prev.map((chat) =>
-          chat.id === selectedChatId
-            ? { ...chat, messages: [...chat.messages, aiMsg] }
-            : chat
-        )
-      );
-      setIsTyping(false);
-    }, 1500);
-  };
-
-  const handleVoice = () => {
-    setInput("[Voice message]");
-  };
-
-  const handleEditLast = (msg) => {
-    setEditingMsg(msg);
-    setInput(msg.content);
-  };
-
-  const handleDelete = (msg) => {
-    setChats((prev) =>
-      prev.map((chat) =>
-        chat.id === selectedChatId
-          ? { ...chat, messages: chat.messages.filter((m) => m.id !== msg.id) }
-          : chat
-      )
-    );
-    setEditingMsg(null);
-    setInput("");
-  };
-
-  const handleFileClick = (file) => {
-    alert(`Opening file: ${file.name}`);
-  };
-
-  const handleSelectChat = (id) => {
-    setSelectedChatId(id);
-    setEditingMsg(null);
-    setInput("");
-    if (!isDesktop) setSidebarOpen(false);
-  };
+        timestamp: new Date(),
+      }
+      setMessages((prev) => [...prev, aiMessage])
+      setIsTyping(false)
+    }, 1500)
+  }
 
   const handleNewChat = () => {
-    const newId = Date.now();
-    const newChat = {
-      id: newId,
-      title: `New Chat ${chats.length + 1}`,
-      messages: [
-        { id: newId, role: "ai", content: "Hi! How can I help you today?" },
-      ],
-    };
-    setChats((prev) => [newChat, ...prev]);
-    setSelectedChatId(newId);
-    setEditingMsg(null);
-    setInput("");
-    if (!isDesktop) setSidebarOpen(false);
-  };
+    setMessages([])
+    setSelectedChat(null)
+    setActiveItem("new-chat")
+  }
 
-  const mainBgClass = isDark 
-    ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900'
-    : 'bg-gradient-to-b from-orange-50 to-orange-100';
-    
-  const headerBgClass = isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100';
-  const headerTextClass = isDark ? 'text-gray-200' : 'text-gray-900';
-  const subtitleClass = isDark ? 'text-gray-400' : 'text-gray-400';
-  const menuButtonClass = isDark ? 'bg-gray-700 hover:bg-gray-600 text-gray-300' : 'bg-gray-100 hover:bg-gray-200 text-gray-600';
+  const handleChatSelect = (chat) => {
+    setSelectedChat(chat)
+    setMessages([
+      {
+        id: 1,
+        role: "assistant",
+        content: `Continuing our conversation about "${chat.title}". How can I help you further?`,
+        timestamp: new Date(),
+      },
+    ])
+    setActiveItem("chats")
+  }
+
+  if (!mounted) return null
 
   return (
-    <div className={`flex h-screen ${mainBgClass}`}>
-      {/* Sidebar Overlay */}
-      {sidebarOpen && !isDesktop && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 transition-opacity duration-300"
-          onClick={() => setSidebarOpen(false)}
-          aria-label="Close sidebar overlay"
-        />
-      )}
-      
+    <div
+      className="flex h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
       {/* Sidebar */}
       <div
-        className={`
-          fixed md:relative top-0 left-0 h-full z-40
-          transition-transform duration-300
-          w-64
-          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-          ${isDesktop ? "" : "md:translate-x-0"}
-        `}
-        style={{ minWidth: sidebarOpen ? 256 : 0 }}
-      >
-        <ChatSidebar
-          selectedChatId={selectedChatId}
-          onSelectChat={handleSelectChat}
-          onNewChat={handleNewChat}
-          onClose={() => setSidebarOpen(false)}
-          isDark={isDark}
-        />
-      </div>
-
-      {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col h-full min-w-0">
-        {/* Header */}
-        <header className={`relative flex items-center justify-between gap-4 px-6 py-3 ${headerBgClass} border-b shadow-sm z-10`}>
-          <div className="flex items-center gap-3">
-            {/* Menu Button */}
+        className={`${sidebarOpen ? "w-64" : "w-16"} transition-all duration-300 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col`}>
+        {/* Sidebar Header */}
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between">
             <button
-              className={`${menuButtonClass} rounded-lg p-2 transition-colors duration-200`}
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              aria-label="Toggle sidebar"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
-              </svg>
+              className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+              <Menu className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </button>
             
-            {/* Logo and Title */}
-            <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center overflow-hidden">
-              <img src="/logo.png" alt="Hamhey AI Logo" className="w-full h-full object-cover" />
-            </div>
-            <div className="flex flex-col">
-              <span className={`font-bold text-lg ${headerTextClass}`}>Hamhey AI</span>
-              <span className={`text-sm ${subtitleClass} leading-tight`}>Every step made simple</span>
-            </div>
           </div>
-          
-          <DarkModeToggle isDark={isDark} onToggle={() => setIsDark(!isDark)} />
-        </header>
-
-        {/* Chat Messages */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <ChatMessages
-            messages={messages}
-            isTyping={isTyping}
-            onEditLast={handleEditLast}
-            onDelete={handleDelete}
-            onFileClick={handleFileClick}
-            isDark={isDark}
-          />
-          <div ref={messagesEndRef} />
         </div>
 
-        {/* Input */}
-        <ChatInput
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onSend={handleSend}
-          onFile={handleFile}
-          onVoice={handleVoice}
-          disabled={isTyping}
-          isDark={isDark}
-        />
+        {/* Sidebar Navigation */}
+        <div className="flex-1 p-2">
+          <nav className="space-y-1">
+            {sidebarItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => {
+                  setActiveItem(item.id)
+                  if (item.id === "new-chat") handleNewChat()
+                }}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                  activeItem === item.id
+                    ? "bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400"
+                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
+                }`}
+                title={item.label}>
+                <item.icon className="w-5 h-5 flex-shrink-0" />
+                {sidebarOpen && <span className="text-sm font-medium">{item.label}</span>}
+              </button>
+            ))}
+          </nav>
+
+          {/* Chat History */}
+          {sidebarOpen && activeItem === "chats" && (
+            <div className="mt-6">
+              <h3
+                className="px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+                Recent Chats
+              </h3>
+              <div className="space-y-1">
+                {mockChats.map((chat) => (
+                  <button
+                    key={chat.id}
+                    onClick={() => handleChatSelect(chat)}
+                    className={`w-full text-left px-3 py-2 rounded-lg transition-colors group ${
+                      selectedChat?.id === chat.id
+                        ? "bg-orange-100 dark:bg-orange-900/30"
+                        : "hover:bg-gray-200 dark:hover:bg-gray-700"
+                    }`}>
+                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{chat.title}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{chat.preview}</div>
+                    <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">{chat.time}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* User Profile */}
+        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-3">
+            <div
+              className="w-8 h-8 rounded-full 
+               flex items-center justify-center">
+              <Image src="/logo.png" alt="Hamhey User" width={20} height={20} />
+            </div>
+            {sidebarOpen && (
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">Hamhey User</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">Free Plan</div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        {/* Header */}
+        <header className="border-b border-gray-200 dark:border-gray-700 p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div
+                className="w-8 h-8 rounded-full  p-1.5">
+                <Image src="/logo.png" alt="Hamhey User" width={32} height={32} className="w-8 h-8 object-contain" />
+              </div>
+              <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Hamhey AI</h1>
+            </div>
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+              {isDark ? (
+                <Sun className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              ) : (
+                <Moon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              )}
+            </button>
+          </div>
+        </header>
+
+        {/* Messages Area */}
+        <div className="flex-1 overflow-y-auto">
+          {messages.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center p-8">
+              <div
+                className="w-16 h-16 rounded-full  flex items-center justify-center mb-6 shadow-lg">
+                <Image
+                  src="/logo.png"
+                  alt="Hamhey User"
+                  width={32}
+                  height={32}
+                  className="w-8 h-8 object-contain " />
+              </div>
+              <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Ready when you are.</h2>
+              <p className="text-gray-600 dark:text-gray-400 text-center max-w-md">
+                Start a conversation with Hamhey AI. Ask questions, get help with tasks, or just chat!
+              </p>
+            </div>
+          ) : (
+            <div className="max-w-3xl mx-auto p-6 space-y-6">
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex gap-4 ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+                  {message.role === "assistant" && (
+                    <div
+                      className="w-8 h-8 rounded-full  flex items-center justify-center flex-shrink-0">
+                      <Image src="/logo.png" alt="Hamhey User" width={32} height={32} className="w-8 h-8 object-contain" />
+                    </div>
+                  )}
+                  <div
+                    className={`max-w-[70%] px-4 py-3 rounded-2xl ${
+                      message.role === "user"
+                        ? "bg-gradient-to-r from-orange-100 to-orange-600 text-white rounded-br-md"
+                        : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-md"
+                    }`}>
+                    <p className="text-sm leading-relaxed">{message.content}</p>
+                  </div>
+                  {message.role === "user" && (
+                    <div
+                      className="w-8 h-8 rounded-full  flex items-center justify-center flex-shrink-0">
+                     <Image src="/logo.png" alt="Hamhey User" width={32} height={32} className="w-8 h-8 object-contain" />
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {isTyping && (
+                <div className="flex gap-4 justify-start">
+                  <div
+                    className="w-8 h-8 rounded-full  flex items-center justify-center flex-shrink-0">
+                    <Image src="/logo.png" alt="Hamhey User" width={32} height={32} className="w-8 h-8 object-contain" />
+                  </div>
+                  <div
+                    className="bg-gray-100 dark:bg-gray-800 px-4 py-3 rounded-2xl rounded-bl-md">
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full animate-bounce"></div>
+                      <div
+                        className="w-2 h-2 bg-orange-500 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.1s" }}></div>
+                      <div
+                        className="w-2 h-2 bg-orange-500 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.2s" }}></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+          )}
+        </div>
+
+        {/* Input Area */}
+        <div className="p-6">
+          <div className="max-w-3xl mx-auto">
+            <div
+              className="relative bg-gray-100 dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 focus-within:border-orange-500 dark:focus-within:border-orange-400 transition-colors">
+              <div className="flex items-center p-4">
+                <button
+                  className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
+                  <Plus className="w-4 h-4" />
+                  <Sparkles className="w-4 h-4" />
+                  <span className="font-medium">Tools</span>
+                </button>
+
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
+                  placeholder="Ask anything"
+                  className="flex-1 bg-transparent border-none outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 px-4 py-2"
+                  disabled={isTyping} />
+
+                <div className="flex items-center gap-2">
+                  <button
+                    className="p-2 text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
+                    <Paperclip className="w-5 h-5" />
+                  </button>
+                  <button
+                    className="p-2 text-gray-500 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
+                    <Mic className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={handleSend}
+                    disabled={!input.trim() || isTyping}
+                    className="p-2 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-all duration-200 transform hover:scale-105 disabled:transform-none">
+                    <ArrowUp className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
