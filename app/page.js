@@ -301,7 +301,7 @@ export default function HamheyAIChat() {
 
   const mainBgClass = isDark 
     ? 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900'
-    : 'bg-gradient-to-b from-white to-orange-50';
+    : 'bg-gradient-to-b from-orange-50 to-orange-100';
     
   const headerBgClass = isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100';
   const headerTextClass = isDark ? 'text-gray-200' : 'text-gray-900';
@@ -361,7 +361,7 @@ export default function HamheyAIChat() {
             </div>
             <div className="flex flex-col">
               <span className={`font-bold text-lg ${headerTextClass}`}>Hamhey AI</span>
-              <span className={`text-sm ${subtitleClass} leading-tight`}>Always here to help</span>
+              <span className={`text-sm ${subtitleClass} leading-tight`}>Every step made simple</span>
             </div>
           </div>
           

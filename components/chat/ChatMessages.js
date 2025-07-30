@@ -57,7 +57,7 @@ export default function ChatMessages({ messages, isTyping, onEditLast, onDelete,
                 className={`relative max-w-xs sm:max-w-md lg:max-w-lg xl:max-w-xl px-4 py-3 rounded-2xl shadow-md text-sm break-words ${
                   isDark
                     ? "bg-gray-700 text-gray-200 rounded-bl-lg"
-                    : "bg-gray-200 text-gray-800 rounded-bl-lg"
+                    : "bg-gray-100 text-gray-800 rounded-bl-lg"
                 }`}
               >
                 {msg.content}
