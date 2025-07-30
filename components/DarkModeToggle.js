@@ -2,13 +2,11 @@
 
 import { useTheme } from './ThemeProvider';
 
-export default function DarkModeToggle() {
-  const { isDark, setIsDark } = useTheme();
-
+export default function DarkModeToggle({ isDark, onToggle }) {
   return (
     <button
-      onClick={() => setIsDark(!isDark)}
-      className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
+      onClick={onToggle}
+      className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-700 hover:bg-gray-600 text-gray-300 transition-colors duration-200"
       aria-label="Toggle dark mode"
     >
       {isDark ? (
