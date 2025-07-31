@@ -7,6 +7,10 @@ Clone repo:
 git pull https://github.com/Jainamshah2425/frontend_hamhey 
 cd hamhey
 ```
+Install dependencies
+```
+npm install
+```
 
 First, run the development server:
 
