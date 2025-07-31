@@ -156,11 +156,11 @@ export default function ChatPage() {
       className="flex h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
       {/* Sidebar */}
       <div
-        className={`relative h-full transition-all duration-300 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col ${sidebarOpen ? 'w-64' : 'w-16'}`}>
+        className={`fixed z-20 inset-y-0 left-0 h-full transition-all duration-300 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col md:relative md:translate-x-0 ${sidebarOpen ? 'w-64' : 'w-0 md:w-16'} ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         {/* Sidebar Header */}
         <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-            <div className={`flex items-center ${!sidebarOpen && 'justify-center w-full'}`}>
-                <Image src="/logo.png" alt="Hamhey User" width={20} height={20} className={`${!sidebarOpen && 'hidden'}`}/>
+            <div className={`flex items-center ${!sidebarOpen && 'md:justify-center w-full'}`}>
+                <Image src="/logo.png" alt="Hamhey User" width={20} height={20} className={`${!sidebarOpen && 'hidden md:block'}`}/>
             </div>
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -236,7 +236,7 @@ export default function ChatPage() {
         </div>
       </div>
       {/* Main Content */}
-      <div className="flex-1 flex flex-col relative">
+      <div className="flex-1 flex flex-col relative md:ml-0">
         {/* Header */}
         <header className="border-b border-gray-200 dark:border-gray-700 p-4">
           <div className="flex items-center justify-between">
