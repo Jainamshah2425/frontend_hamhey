@@ -156,17 +156,17 @@ export default function ChatPage() {
       className="flex h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
       {/* Sidebar */}
       <div
-        className={`${sidebarOpen ? "w-64" : "w-16"} transition-all duration-300 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col`}>
+        className={`relative h-full transition-all duration-300 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col ${sidebarOpen ? 'w-64' : 'w-16'}`}>
         {/* Sidebar Header */}
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+            <div className={`flex items-center ${!sidebarOpen && 'justify-center w-full'}`}>
+                <Image src="/logo.png" alt="Hamhey User" width={20} height={20} className={`${!sidebarOpen && 'hidden'}`}/>
+            </div>
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
               className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
               <Menu className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </button>
-            
-          </div>
         </div>
 
         {/* Sidebar Navigation */}
@@ -236,11 +236,16 @@ export default function ChatPage() {
         </div>
       </div>
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col relative">
         {/* Header */}
         <header className="border-b border-gray-200 dark:border-gray-700 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setSidebarOpen(!sidebarOpen)}
+                  className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors md:hidden">
+                  <Menu className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                </button>
               <div
                 className="w-8 h-8 rounded-full  p-1.5">
                 <Image src="/logo.png" alt="Hamhey User" width={32} height={32} className="w-8 h-8 object-contain" />
@@ -352,13 +357,13 @@ export default function ChatPage() {
         </div>
 
         {/* Input Area */}
-        <div className="p-6">
+        <div className="p-4 md:p-6">
           <div className="max-w-3xl mx-auto">
             <div
               className="relative bg-gray-100 dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 focus-within:border-orange-500 dark:focus-within:border-orange-400 transition-colors">
-              <div className="flex items-center p-4">
+              <div className="flex items-center p-2 md:p-4">
                 <button
-                  className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
+                  className="hidden md:flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
                   <Plus className="w-4 h-4" />
                   <Sparkles className="w-4 h-4" />
                   <span className="font-medium">Tools</span>
