@@ -2,6 +2,12 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+Clone repo:
+```
+git pull https://github.com/Jainamshah2425/frontend_hamhey 
+cd hamhey
+```
+
 First, run the development server:
 
 ```bash
