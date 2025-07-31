@@ -15,6 +15,7 @@ import {
   Sun,
   Moon,
   Sparkles,
+  PenLine,
 } from "lucide-react"
 
 const sidebarItems = [
@@ -55,6 +56,8 @@ export default function ChatPage() {
   const [isDark, setIsDark] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [activeItem, setActiveItem] = useState("chats")
+  const [editingMessageId, setEditingMessageId] = useState(null);
+  const [editingMessageContent, setEditingMessageContent] = useState("");
   const messagesEndRef = useRef(null)
 
   useEffect(() => {
@@ -112,6 +115,20 @@ export default function ChatPage() {
       setIsTyping(false)
     }, 1500)
   }
+
+  const handleEdit = (message) => {
+    setEditingMessageId(message.id);
+    setEditingMessageContent(message.content);
+  };
+
+  const handleSave = (messageId) => {
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.id === messageId ? { ...m, content: editingMessageContent } : m
+      )
+    );
+    setEditingMessageId(null);
+  };
 
   const handleNewChat = () => {
     setMessages([])
@@ -255,9 +272,10 @@ export default function ChatPage() {
                   height={32}
                   className="w-8 h-8 object-contain " />
               </div>
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Ready when you are.</h2>
+              <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Every step made simple.</h2>
               <p className="text-gray-600 dark:text-gray-400 text-center max-w-md">
-                Start a conversation with Hamhey AI. Ask questions, get help with tasks, or just chat!
+                {/* Start a conversation with Hamhey AI. Ask questions, get help with tasks, or just chat! */}
+                Trusted relocation is just a prompt away. Start a new chat to get personalized assistance.
               </p>
             </div>
           ) : (
@@ -273,12 +291,31 @@ export default function ChatPage() {
                     </div>
                   )}
                   <div
-                    className={`max-w-[70%] px-4 py-3 rounded-2xl ${
+                    className={`relative group max-w-[70%] px-4 py-3 rounded-2xl ${
                       message.role === "user"
                         ? "bg-orange-500 dark:bg-orange-800 text-white rounded-br-md"
                         : "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-bl-md"
                     }`}>
-                    <p className="text-sm leading-relaxed">{message.content}</p>
+                    {editingMessageId === message.id ? (
+                      <div className="flex flex-col gap-2">
+                        <textarea
+                          value={editingMessageContent}
+                          onChange={(e) => setEditingMessageContent(e.target.value)}
+                          className="w-full bg-transparent border-none outline-none text-sm leading-relaxed"
+                        />
+                        <div className="flex gap-2 self-end">
+                          <button onClick={() => handleSave(message.id)} className="text-xs font-bold">Save</button>
+                          <button onClick={() => setEditingMessageId(null)} className="text-xs">Cancel</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-sm leading-relaxed">{message.content}</p>
+                    )}
+                    {message.role === "user" && editingMessageId !== message.id && (
+                        <button onClick={() => handleEdit(message)} className="absolute top-1/2 -left-10 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-1 rounded-full hover:bg-black/10 dark:hover:bg-white/10">
+                            <PenLine className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                        </button>
+                    )}
                   </div>
                   {message.role === "user" && (
                     <div
